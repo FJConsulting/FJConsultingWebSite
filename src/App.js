@@ -730,7 +730,7 @@ export default function PlaquetteGraphique() {
               className="text-4xl md:text-5xl font-extrabold"
               style={{ color: gold }}
             >
-              Moins de clics, plus de business.
+              Plus de clics, plus de business.
             </motion.h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-xl">
               Des workflows sans friction qui libèrent vos équipes et propulsent
