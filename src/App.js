@@ -700,6 +700,59 @@ function PacksDetailsModal({ open, onClose }) {
 export default function PlaquetteGraphique() {
   const [modalIdx, setModalIdx] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [error, setError] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const webhookUrl =
+    "https://hook.eu2.make.com/zowogdole3pdp1u3rnp96erblyok8amw";
+
+  function handleLeadForm(e) {
+    e.preventDefault();
+    setError(""); // Reset l'erreur
+
+    const form = e.target;
+    const prenom = form.prenom.value.trim();
+    const telephone = form.telephone.value.trim();
+    const email = form.email.value.trim();
+    const besoin = form.besoin.value.trim();
+
+    // Validation custom
+    if (!prenom) {
+      setError("Merci de renseigner votre prénom.");
+      form.prenom.focus();
+      return;
+    }
+    if (!besoin) {
+      setError("Merci d'indiquer votre besoin.");
+      form.besoin.focus();
+      return;
+    }
+    if (!telephone && !email) {
+      setError(
+        "Veuillez renseigner au moins un numéro de téléphone ou un email."
+      );
+      form.telephone.focus();
+      return;
+    }
+
+    const data = { prenom, telephone, email, besoin };
+    // Envoie vers Make
+    fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then(() => {
+        setConfirmation("Merci, je vous rappelle très vite !");
+        setTimeout(() => setConfirmation(""), 4000);
+        form.reset();
+        setError("");
+      })
+      .catch(() => {
+        setError("Erreur lors de l’envoi. Merci de réessayer.");
+      });
+    form.reset(); // Un seul reset suffit
+    setError(""); // Efface l'erreur si submit réussi
+  }
 
   const openCalendly = () => {
     if (window.Calendly) {
@@ -720,9 +773,10 @@ export default function PlaquetteGraphique() {
           <img src={logoSrc} alt="Logo FJC" width={120} height={120} />
         </header>
 
-        {/* Hero */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center justify-items-center md:justify-items-start">
-          <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
+        {/* HERO = TOUT dans un seul bloc */}
+        <section className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-10 md:gap-20 py-16 px-4 md:px-8">
+          {/* Colonne gauche : texte */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6 flex-1">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -737,19 +791,21 @@ export default function PlaquetteGraphique() {
               votre croissance.&nbsp;
             </p>
             <Button
+              onClick={openCalendly}
               className="bg-transparent border-2 rounded-md px-8 py-3"
               style={{ borderColor: gold, color: gold }}
             >
               Réservez votre audit gratuit
             </Button>
           </div>
+          {/* Colonne droite : photo */}
           <div
-            className="inline-block relative mx-auto md:mx-0 justify-self-center self-start"
+            className="relative flex-shrink-0 mt-10 md:mt-0"
             style={{
+              width: "260px",
+              height: "260px",
               transform: `scale(${photoScale})`,
               transformOrigin: "top center",
-              width: "240px",
-              height: "240px",
             }}
           >
             <div className="absolute inset-0">
@@ -774,8 +830,76 @@ export default function PlaquetteGraphique() {
           </div>
         </section>
 
+        {/* Spacer mobile only */}
+        <div className="block md:hidden" style={{ height: 40 }}></div>
+        <div className="w-full flex flex-col items-center justify-center mt-0 md:mt-16 mb-0">
+          {/* FORMULAIRE = EN DEHORS DU HERO */}
+          <div className="w-full flex flex-col items-center justify-center mt-2 md:mt-16 mb-0">
+            <form
+              onSubmit={handleLeadForm}
+              className="
+                w-full max-w-full md:max-w-5xl
+                flex flex-col md:flex-row
+                items-center
+                justify-center
+                gap-2
+                bg-[#1a2430cc]
+                rounded-xl
+                border border-[#C9A43F]
+                p-4
+                shadow-lg
+              "
+              style={{ minHeight: 70 }}
+            >
+              <input
+                name="prenom"
+                placeholder="Prénom"
+                className="w-full flex-1 min-w-0 px-4 py-2 mb-2 md:mb-0 rounded bg-[#181c20] text-white focus:ring-2 focus:ring-[#C9A43F] border border-gray-700/40"
+              />
+              <input
+                name="telephone"
+                placeholder="Téléphone"
+                className="w-full flex-1 min-w-0 px-4 py-2 mb-2 md:mb-0 rounded bg-[#181c20] text-white focus:ring-2 focus:ring-[#C9A43F] border border-gray-700/40"
+              />
+              <input
+                name="email"
+                placeholder="Email"
+                type="email"
+                className="w-full flex-1 min-w-0 px-4 py-2 mb-2 md:mb-0 rounded bg-[#181c20] text-white focus:ring-2 focus:ring-[#C9A43F] border border-gray-700/40"
+              />
+              <input
+                name="besoin"
+                placeholder="Votre besoin en 1 phrase"
+                className="w-full flex-[2] min-w-0 px-4 py-2 mb-2 md:mb-0 rounded bg-[#181c20] text-white focus:ring-2 focus:ring-[#C9A43F] border border-gray-700/40"
+              />
+              <Button
+                type="submit"
+                className="w-full md:w-auto min-w-[130px]"
+                style={{ background: gold, color: dark, border: "none" }}
+              >
+                Être rappelé
+              </Button>
+            </form>
+            {/* Message d’erreur stylé, sous le form */}
+            {error && (
+              <div className="mt-3 px-4 py-2 bg-red-800/80 text-sm text-red-200 rounded-xl border border-red-400 shadow">
+                {error}
+              </div>
+            )}
+            {/* Message de confirmation stylé */}
+            {confirmation && (
+              <div className="mt-3 px-4 py-2 bg-green-800/90 text-sm text-green-100 rounded-xl border border-green-400 shadow transition-all duration-500">
+                {confirmation}
+              </div>
+            )}
+            <span className="text-xs text-gray-400 mt-1 mb-0 w-full text-center">
+              Aucune pub, aucune vente de données. Juste un rappel personnalisé,
+              c’est tout.
+            </span>
+          </div>
+        </div>
         {/* Vos douleurs */}
-        <section className="pt-20 md:pt-24">
+        <section className="pt-6 md:pt-1">
           <h2
             className="text-3xl font-bold mb-8 text-center"
             style={{ color: gold }}
