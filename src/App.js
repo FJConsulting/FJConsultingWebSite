@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, ChevronLeft, ChevronRight } from "framer-motion";
 
 /* ---------- Palette ---------- */
 const gold = "#C9A43F";
@@ -21,6 +21,8 @@ import {
   fullPacks,
   maintenancePacks,
 } from "./packsData";
+
+import ScreenshotCarousel from "./ScreenshotCarousel";
 
 // --- CARD ---
 const Card = ({ children, className = "", hoverEffect = true, ...rest }) => (
@@ -922,6 +924,9 @@ export default function PlaquetteGraphique() {
             ))}
           </div>
         </section>
+
+        {/* Carrousel */}
+        <ScreenshotCarousel />
 
         {/* Exemples */}
         <section>
